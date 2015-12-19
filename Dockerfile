@@ -2,12 +2,27 @@
 #  Dockerfile for JSPWiki running in a tomcat 8 on top of OpenJDK7 on top of CentoS 7
 #  Also install unzip, needed to unzip the default wikipages.
 #
-FROM tomcat:8.0.30
+FROM centos:centos7
 MAINTAINER Harry Metske <metskem@apache.org>
 # we need the unzip command to unpack the war and zip files
 USER root
 RUN yum -y update
-RUN yum install -y unzip
+RUN yum install -y unzip tar
+#-------------------------------------------------------------
+#  Install Tomcat
+#-------------------------------------------------------------
+RUN curl http://apache.proserve.nl/tomcat/tomcat-8/v8.0.30/bin/apache-tomcat-8.0.30.tar.gz | gunzip | tar -x -C /usr/local
+RUN useradd tomcat && \
+    cd /usr/local && ln -s apache-tomcat-8.0.30 tomcat && \
+    chown -R tomcat.tomcat /usr/local/tomcat /usr/local/apache-tomcat-8.0.30
+ENV HOME /home/tomcat
+# remove stuff we don't need
+RUN rm -rf /usr/local/tomcat/bin/*.bat
+# provide access to tomcat manager application with user/pw = admin/admin :
+RUN echo -e '<?xml version="1.0" encoding="utf-8"?>\n<tomcat-users>\n<role rolename="manager-gui"/>\n<role rolename="manager-script"/>\n<role rolename="manager-jmx"/>\n<role rolename="manager-status"/>\n<role rolename="admin"/>\n<user username="admin" password="admin" roles="manager,manager-gui,manager-script,manager-jmx,manager-status"/>\n</tomcat-users>' > /usr/local/tomcat/conf/tomcat-users.xml
+#-------------------------------------------------------------
+#  Install JSPWiki
+#-------------------------------------------------------------
 # create a directory where all jspwiki stuff will live
 RUN mkdir /var/jspwiki && \
     chown tomcat.tomcat /var/jspwiki && \
