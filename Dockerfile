@@ -26,7 +26,7 @@ ENV HOME /home/tomcat
 ADD JSPWiki.war /tmp/jspwiki.war
 # create a directory where all jspwiki stuff will live
 RUN mkdir /var/jspwiki && \
-    chown tomcat.tomcat /var/jspwiki &&
+    chown tomcat.tomcat /var/jspwiki && \
 # first remove default tomcat applications, we dont need them to run jspwiki
    cd /usr/local/tomcat/webapps && rm -rf examples host-manager manager docs ROOT && \
 # create subdirectories where all jspwiki stuff will live
