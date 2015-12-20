@@ -11,14 +11,14 @@ RUN yum install -y unzip tar
 #-------------------------------------------------------------
 #  Install Tomcat
 #-------------------------------------------------------------
-RUN curl http://apache.proserve.nl/tomcat/tomcat-8/v8.0.30/bin/apache-tomcat-8.0.30.tar.gz | gunzip | tar -x -C /usr/local && \
+RUN curl --show-error --silent http://apache.proserve.nl/tomcat/tomcat-8/v8.0.30/bin/apache-tomcat-8.0.30.tar.gz | gunzip | tar -x -C /usr/local && \
     useradd tomcat && \
     cd /usr/local && ln -s apache-tomcat-8.0.30 tomcat && \
 # remove stuff we don't need
    rm -rf /usr/local/tomcat/bin/*.bat && \
 # provide access to tomcat manager application with user/pw = admin/admin :
     echo -e '<?xml version="1.0" encoding="utf-8"?>\n<tomcat-users>\n<role rolename="manager-gui"/>\n<role rolename="manager-script"/>\n<role rolename="manager-jmx"/>\n<role rolename="manager-status"/>\n<role rolename="admin"/>\n<user username="admin" password="admin" roles="manager,manager-gui,manager-script,manager-jmx,manager-status"/>\n</tomcat-users>' > /usr/local/tomcat/conf/tomcat-users.xml
-ENV HOME /home/tomcat
+
 #-------------------------------------------------------------
 #  Install JSPWiki
 #-------------------------------------------------------------
@@ -62,6 +62,7 @@ ENV jspwiki_xmlGroupDatabaseFile /var/jspwiki/etc/groupdatabase.xml
 ENV jspwiki_use_external_logconfig true
 # ENV jspwiki_templateDir
 ENV jspwiki_baseURL http://localhost:8080/
+ENV HOME /home/tomcat
 
 # run with user tomcat
 USER tomcat
