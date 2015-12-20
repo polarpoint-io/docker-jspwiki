@@ -11,13 +11,13 @@ RUN yum install -y unzip tar
 #-------------------------------------------------------------
 #  Install Tomcat
 #-------------------------------------------------------------
-RUN curl http://apache.proserve.nl/tomcat/tomcat-8/v8.0.30/bin/apache-tomcat-8.0.30.tar.gz | gunzip | tar -x -C /usr/local
-RUN useradd tomcat && \
+RUN curl http://apache.proserve.nl/tomcat/tomcat-8/v8.0.30/bin/apache-tomcat-8.0.30.tar.gz | gunzip | tar -x -C /usr/local && \
+    useradd tomcat && \
     cd /usr/local && ln -s apache-tomcat-8.0.30 tomcat && \
 # remove stuff we don't need
    rm -rf /usr/local/tomcat/bin/*.bat && \
 # provide access to tomcat manager application with user/pw = admin/admin :
-RUN echo -e '<?xml version="1.0" encoding="utf-8"?>\n<tomcat-users>\n<role rolename="manager-gui"/>\n<role rolename="manager-script"/>\n<role rolename="manager-jmx"/>\n<role rolename="manager-status"/>\n<role rolename="admin"/>\n<user username="admin" password="admin" roles="manager,manager-gui,manager-script,manager-jmx,manager-status"/>\n</tomcat-users>' > /usr/local/tomcat/conf/tomcat-users.xml
+    echo -e '<?xml version="1.0" encoding="utf-8"?>\n<tomcat-users>\n<role rolename="manager-gui"/>\n<role rolename="manager-script"/>\n<role rolename="manager-jmx"/>\n<role rolename="manager-status"/>\n<role rolename="admin"/>\n<user username="admin" password="admin" roles="manager,manager-gui,manager-script,manager-jmx,manager-status"/>\n</tomcat-users>' > /usr/local/tomcat/conf/tomcat-users.xml
 ENV HOME /home/tomcat
 #-------------------------------------------------------------
 #  Install JSPWiki
