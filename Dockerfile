@@ -7,6 +7,7 @@ MAINTAINER Harry Metske <metskem@apache.org>
 # we need the unzip and tar command to unpack the war and zip files
 USER root
 RUN yum -y update
+RUN yum install -y java-1.7.0-openjdk-headless
 RUN yum install -y unzip tar
 #-------------------------------------------------------------
 #  Install Tomcat
@@ -48,8 +49,10 @@ log4j.appender.FileLog.MaxFileSize = 10MB\n\
 log4j.appender.FileLog.MaxBackupIndex = 14\n\
 log4j.appender.FileLog.File = /var/jspwiki/logs/jspwiki.log\n\
 log4j.appender.FileLog.layout = org.apache.log4j.PatternLayout\n\
-log4j.appender.FileLog.layout.ConversionPattern = %d [%t] %p %c %x - %m%n\n" > /usr/local/tomcat/lib/log4j.properties && \
-   chown -R tomcat.tomcat /usr/local/tomcat /var/jspwiki
+log4j.appender.FileLog.layout.ConversionPattern = %d [%t] %p %c %x - %m%n\n" > /usr/local/tomcat/lib/log4j.properties
+
+RUN chown -R tomcat. /usr/local/tomcat/* /var/jspwiki
+
 #
 # set default environment entries to configure jspwiki
 ENV LANG en_US.UTF-8
