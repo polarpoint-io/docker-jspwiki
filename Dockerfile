@@ -6,15 +6,16 @@ FROM centos:centos7
 MAINTAINER Harry Metske <metskem@apache.org>
 # we need the unzip and tar command to unpack the war and zip files
 USER root
-RUN yum -y update
-RUN yum install -y java-1.7.0-openjdk-headless
-RUN yum install -y unzip tar
+RUN yum -y update && \
+    yum install -y java-1.7.0-openjdk-headless && \
+    yum install -y unzip tar && \
+    yum clean all
 #-------------------------------------------------------------
 #  Install Tomcat
 #-------------------------------------------------------------
-RUN curl --show-error --silent http://apache.proserve.nl/tomcat/tomcat-8/v8.0.30/bin/apache-tomcat-8.0.30.tar.gz | gunzip | tar -x -C /usr/local && \
+RUN curl --show-error --silent http://apache.proserve.nl/tomcat/tomcat-8/v8.0.32/bin/apache-tomcat-8.0.32.tar.gz | gunzip | tar -x -C /usr/local && \
     useradd tomcat && \
-    cd /usr/local && ln -s apache-tomcat-8.0.30 tomcat && \
+    cd /usr/local && ln -s apache-tomcat-8.0.32 tomcat && \
 # remove stuff we don't need
    rm -rf /usr/local/tomcat/bin/*.bat && \
 # provide access to tomcat manager application with user/pw = admin/admin :
@@ -63,7 +64,7 @@ ENV jspwiki_workDir /var/jspwiki/work
 ENV jspwiki_xmlUserDatabaseFile /var/jspwiki/etc/userdatabase.xml
 ENV jspwiki_xmlGroupDatabaseFile /var/jspwiki/etc/groupdatabase.xml
 ENV jspwiki_use_external_logconfig true
-# ENV jspwiki_templateDir
+ENV jspwiki_templateDir haddock
 ENV jspwiki_baseURL http://localhost:8080/
 ENV HOME /home/tomcat
 
