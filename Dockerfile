@@ -2,7 +2,7 @@
 #  Dockerfile for JSPWiki running in a tomcat 8 on top of OpenJDK7 on top of CentoS 7
 #  Also install unzip, needed to unzip the default wikipages.
 #
-FROM alpine:3.2
+FROM alpine:3.3
 MAINTAINER Harry Metske <metskem@apache.org>
 RUN apk --update add openjdk7-jre
 #-------------------------------------------------------------
