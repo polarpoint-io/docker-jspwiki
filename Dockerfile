@@ -27,7 +27,8 @@ RUN mkdir /var/jspwiki && \
    cd /var/jspwiki && mkdir pages logs etc work && mkdir /usr/local/tomcat/webapps/ROOT && \
    unzip -q -d /usr/local/tomcat/webapps/ROOT /tmp/jspwiki.war && rm /tmp/jspwiki.war
 #
-ADD jspwiki-wikipages-en-2.10.2.zip /var/jspwiki/pages/ 
+ADD jspwiki-wikipages-en-2.10.3-SNAPSHOT.zip /tmp/
+RUN cd /tmp/ && unzip -q jspwiki-wikipages-en-2.10.3-SNAPSHOT.zip && mv jspwiki-wikipages-en-2.10.3-SNAPSHOT/* /var/jspwiki/pages/ && rm -rf jspwiki-wikipages-en-2.10.3-SNAPSHOT*
 # move the userdatabase.xml and groupdatabase to /var/jspwiki/etc
 RUN cd /usr/local/tomcat/webapps/ROOT/WEB-INF && mv userdatabase.xml groupdatabase.xml /var/jspwiki/etc
 # arrange proper logging (jspwiki.use.external.logconfig = true needs to be set)
@@ -44,7 +45,6 @@ ENV jspwiki_xmlUserDatabaseFile /var/jspwiki/etc/userdatabase.xml
 ENV jspwiki_xmlGroupDatabaseFile /var/jspwiki/etc/groupdatabase.xml
 ENV jspwiki_use_external_logconfig true
 ENV jspwiki_templateDir haddock
-ENV jspwiki_baseURL http://localhost:8080/
 ENV CATALINA_OPTS -Djava.security.egd=file:/dev/./urandom
 
 # make port visible in metadata
