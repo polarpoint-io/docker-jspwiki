@@ -9,7 +9,8 @@ RUN apk --update add openjdk7-jre
 #  Install Tomcat
 #-------------------------------------------------------------
 ADD apache-tomcat-8.0.39.tar.gz /usr/local/
-RUN cd /usr/local && ln -s apache-tomcat-8.0.39 tomcat && \
+RUN adduser -D tomcat && \
+    cd /usr/local && ln -s apache-tomcat-8.0.39 tomcat && \
 # remove stuff we don't need
     rm -rf /usr/local/tomcat/bin/*.bat && \
 # provide access to tomcat manager application with user/pw = admin/admin :
@@ -33,7 +34,9 @@ RUN cd /tmp/ && unzip -q jspwiki-wikipages-en-2.10.3-SNAPSHOT.zip && mv jspwiki-
 RUN cd /usr/local/tomcat/webapps/ROOT/WEB-INF && mv userdatabase.xml groupdatabase.xml /var/jspwiki/etc
 # arrange proper logging (jspwiki.use.external.logconfig = true needs to be set)
 ADD log4j.properties /usr/local/tomcat/lib/log4j.properties
-
+#
+# make everything owned by tomcat
+RUN chown -R tomcat: /var/jspwiki /usr/local/tomcat
 #
 # set default environment entries to configure jspwiki
 ENV LANG en_US.UTF-8
@@ -46,6 +49,9 @@ ENV jspwiki_xmlGroupDatabaseFile /var/jspwiki/etc/groupdatabase.xml
 ENV jspwiki_use_external_logconfig true
 ENV jspwiki_templateDir haddock
 ENV CATALINA_OPTS -Djava.security.egd=file:/dev/./urandom
+
+# run with user tomcat
+USER tomcat
 
 # make port visible in metadata
 EXPOSE 8080
