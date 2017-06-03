@@ -36,7 +36,7 @@ RUN cd /usr/local/tomcat/webapps/ROOT/WEB-INF && mv userdatabase.xml groupdataba
 ADD log4j.properties /usr/local/tomcat/lib/log4j.properties
 #
 # make everything owned by tomcat
-RUN chown -R tomcat: /var/jspwiki /usr/local/tomcat
+RUN chown -R tomcat: /var/jspwiki /usr/local/tomcat/*
 #
 # set default environment entries to configure jspwiki
 ENV LANG en_US.UTF-8
