@@ -2,15 +2,15 @@
 #  Dockerfile for JSPWiki running in a tomcat 8 on top of OpenJDK7 on top of CentoS 7
 #  Also install unzip, needed to unzip the default wikipages.
 #
-FROM alpine:3.3
+FROM alpine:3.7
 MAINTAINER Harry Metske <metskem@apache.org>
 RUN apk --update add openjdk7-jre
 #-------------------------------------------------------------
 #  Install Tomcat
 #-------------------------------------------------------------
-ADD apache-tomcat-8.5.15.tar.gz /usr/local/
+ADD apache-tomcat-8.5.24.tar.gz /usr/local/
 RUN adduser -D tomcat && \
-    cd /usr/local && ln -s apache-tomcat-8.5.15 tomcat && \
+    cd /usr/local && ln -s apache-tomcat-8.5.24 tomcat && \
 # remove stuff we don't need
     rm -rf /usr/local/tomcat/bin/*.bat && \
 # provide access to tomcat manager application with user/pw = admin/admin :
