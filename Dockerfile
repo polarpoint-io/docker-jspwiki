@@ -8,9 +8,9 @@ RUN apk --update add openjdk7-jre
 #-------------------------------------------------------------
 #  Install Tomcat
 #-------------------------------------------------------------
-ADD apache-tomcat-8.5.24.tar.gz /usr/local/
-RUN adduser -D tomcat && \
-    cd /usr/local && ln -s apache-tomcat-8.5.24 tomcat && \
+ADD apache-tomcat.tar.gz /usr/local/
+RUN cd /usr/local && mv apache-tomcat-* apache-tomcat && adduser -D tomcat && \
+    cd /usr/local && ln -s apache-tomcat tomcat && \
 # remove stuff we don't need
     rm -rf /usr/local/tomcat/bin/*.bat && \
 # provide access to tomcat manager application with user/pw = admin/admin :
