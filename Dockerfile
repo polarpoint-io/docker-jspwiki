@@ -48,6 +48,7 @@ ENV jspwiki_xmlUserDatabaseFile /var/jspwiki/etc/userdatabase.xml
 ENV jspwiki_xmlGroupDatabaseFile /var/jspwiki/etc/groupdatabase.xml
 ENV jspwiki_use_external_logconfig true
 ENV jspwiki_templateDir haddock
+ENV jspwiki_jspwiki_frontPage Main
 ENV CATALINA_OPTS -Djava.security.egd=file:/dev/./urandom
 
 # run with user tomcat
