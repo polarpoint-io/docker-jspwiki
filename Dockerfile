@@ -2,9 +2,9 @@
 #  Dockerfile for JSPWiki running in a tomcat 8 on top of OpenJDK7 on top of CentoS 7
 #  Also install unzip, needed to unzip the default wikipages.
 #
-FROM alpine:3.7
+FROM alpine:3.10.2
 MAINTAINER Harry Metske <metskem@apache.org>
-RUN apk --update add openjdk8-jre
+RUN apk --update add openjdk11-jre
 #-------------------------------------------------------------
 #  Install Tomcat
 #-------------------------------------------------------------
@@ -28,8 +28,8 @@ RUN mkdir /var/jspwiki && \
    cd /var/jspwiki && mkdir pages logs etc work && mkdir /usr/local/tomcat/webapps/ROOT && \
    unzip -q -d /usr/local/tomcat/webapps/ROOT /tmp/jspwiki.war && rm /tmp/jspwiki.war
 #
-ADD jspwiki-wikipages-en-2.11.0.M2.zip /tmp/
-RUN cd /tmp/ && unzip -q jspwiki-wikipages-en-2.11.0.M2.zip && mv jspwiki-wikipages-en-2.11.0.M2/* /var/jspwiki/pages/ && rm -rf jspwiki-wikipages-en-2.11.0.M2*
+ADD jspwiki-wikipages-en-2.11.0.M5.zip /tmp/
+RUN cd /tmp/ && unzip -q jspwiki-wikipages-en-2.11.0.M5.zip && mv jspwiki-wikipages-en-2.11.0.M5/* /var/jspwiki/pages/ && rm -rf jspwiki-wikipages-en-2.11.0.M5*
 # move the userdatabase.xml and groupdatabase to /var/jspwiki/etc
 RUN cd /usr/local/tomcat/webapps/ROOT/WEB-INF && mv userdatabase.xml groupdatabase.xml /var/jspwiki/etc
 # arrange proper logging (jspwiki.use.external.logconfig = true needs to be set)
