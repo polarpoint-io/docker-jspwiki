@@ -1,34 +1,60 @@
 #
-#  Dockerfile for JSPWiki running in a tomcat 8 on top of OpenJDK7 on top of CentoS 7
-#  Also install unzip, needed to unzip the default wikipages.
+#  Dockerfile for JSPWiki running in a tomcat 9 on top of OpenJDK11 
 #
-FROM alpine:3.7
-MAINTAINER Harry Metske <metskem@apache.org>
-RUN apk --update add openjdk7-jre
+FROM alpine:3.12
+MAINTAINER Harry Metske <metskem@apache.org>, Surj Bains <surj@polarpoint.io>
+
+# Environment variables
+ENV APACHE_TOMCAT_VERSION="9.0.36"
+ENV JSP_WIKI_VERSION="2.11.0.M7"
+ENV JSPWIKI_WIKIPAGES_LANGUAGE="en"
+
+
+# add user and group 
+ARG user=tomcat
+ARG group=tomcat
+ARG uid=1000
+ARG gid=1000
+
+RUN apk add --no-cache  openjdk11-jre curl ca-certificates
 #-------------------------------------------------------------
 #  Install Tomcat
 #-------------------------------------------------------------
-ADD apache-tomcat.tar.gz /usr/local/
-RUN cd /usr/local && mv apache-tomcat-* apache-tomcat && adduser -D tomcat && \
-    cd /usr/local && ln -s apache-tomcat tomcat && \
+RUN mkdir /opt/tomcat/
+WORKDIR /opt/tomcat
+
+
+# download apache tomcat version
+RUN  curl -O https://www.mirrorservice.org/sites/ftp.apache.org/tomcat/tomcat-9/v${APACHE_TOMCAT_VERSION}/bin/apache-tomcat-${APACHE_TOMCAT_VERSION}.tar.gz && tar -xvzf  apache-tomcat-${APACHE_TOMCAT_VERSION}.tar.gz \
+      &&  mv apache-tomcat-${APACHE_TOMCAT_VERSION}/* /opt/tomcat/. && rm -rf apache-tomcat-${APACHE_TOMCAT_VERSION}.tar.gz
+
+
+ENV TOMCAT_HOME /opt/${user}
+RUN addgroup -g ${gid} ${group}
+RUN adduser -h $TOMCAT_HOME -u ${uid} -G ${group} -D ${user}
+
+
 # remove stuff we don't need
-    rm -rf /usr/local/tomcat/bin/*.bat && \
+RUN    rm -rf /opt/tomcat/bin/*.bat && \
 # provide access to tomcat manager application with user/pw = admin/admin :
     echo -e '<?xml version="1.0" encoding="utf-8"?>\n<tomcat-users>\n<role rolename="manager-gui"/>\n<role rolename="manager-script"/>\n<role rolename="manager-jmx"/>\n<role rolename="manager-status"/>\n<role rolename="admin"/>\n<user username="admin" password="admin" roles="manager,manager-gui,manager-script,manager-jmx,manager-status"/>\n</tomcat-users>' > /usr/local/tomcat/conf/tomcat-users.xml
 #-------------------------------------------------------------
 #  Install JSPWiki
 #-------------------------------------------------------------
+# download jspwiki version
+RUN  curl -O https://www.mirrorservice.org/sites/ftp.apache.org/jspwiki/${APACHE_TOMCAT_VERSION}/binaries/webapp/JSPWiki.war && mv JSPWiki.war /tmp/jspwiki.war
+
 # add jspwiki war, create JSPWiki webapps dir, unzip it there.
-ADD JSPWiki.war /tmp/jspwiki.war
-# create a directory where all jspwiki stuff will live
+# create a directory where all jspwiki stuff will be hosted
 RUN mkdir /var/jspwiki && \
 # first remove default tomcat applications, we dont need them to run jspwiki
-   cd /usr/local/tomcat/webapps && rm -rf examples host-manager manager docs ROOT && \
-# create subdirectories where all jspwiki stuff will live
-   cd /var/jspwiki && mkdir pages logs etc work && mkdir /usr/local/tomcat/webapps/ROOT && \
+   cd /opt/tomcat/webapps && rm -rf examples host-manager manager docs ROOT && \
+# create subdirectories where all jspwiki stuff will be hosted
+   cd /var/jspwiki && mkdir pages logs etc work && mkdir /opt/tomcat/webapps/ROOT && \
    unzip -q -d /usr/local/tomcat/webapps/ROOT /tmp/jspwiki.war && rm /tmp/jspwiki.war
-#
-ADD jspwiki-wikipages-en-2.10.3-SNAPSHOT.zip /tmp/
+
+RUN  curl -O https://www.mirrorservice.org/sites/ftp.apache.org/jspwiki/${JSP_WIKI_VERSION}/wikipages/jspwiki-wikipages-${JSPWIKI_WIKIPAGES_LANGUAGE}-${JSP_WIKI_VERSION}.zip jspwiki-wikipages && mv JSPWiki.war /tmp/jspwiki.war
+
 RUN cd /tmp/ && unzip -q jspwiki-wikipages-en-2.10.3-SNAPSHOT.zip && mv jspwiki-wikipages-en-2.10.3-SNAPSHOT/* /var/jspwiki/pages/ && rm -rf jspwiki-wikipages-en-2.10.3-SNAPSHOT*
 # move the userdatabase.xml and groupdatabase to /var/jspwiki/etc
 RUN cd /usr/local/tomcat/webapps/ROOT/WEB-INF && mv userdatabase.xml groupdatabase.xml /var/jspwiki/etc
@@ -52,7 +78,8 @@ ENV jspwiki_jspwiki_frontPage Main
 ENV CATALINA_OPTS -Djava.security.egd=file:/dev/./urandom
 
 # run with user tomcat
-USER tomcat
+USER ${user}
+
 
 # make port visible in metadata
 EXPOSE 8080
