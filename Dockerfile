@@ -6,8 +6,8 @@ MAINTAINER Harry Metske <metskem@apache.org>, Surj Bains <surj@polarpoint.io>
 
 # Environment variables
 ENV APACHE_TOMCAT_VERSION="9.0.36"
-ENV JSP_WIKI_VERSION="2.11.0.M7"
-ENV JSPWIKI_WIKIPAGES_LANGUAGE="en"
+ENV JSP_WIKI_VERSION=2.11.0.M7
+ENV JSPWIKI_WIKIPAGES_LANGUAGE=en
 
 
 # add user and group 
@@ -37,32 +37,32 @@ RUN adduser -h $TOMCAT_HOME -u ${uid} -G ${group} -D ${user}
 # remove stuff we don't need
 RUN    rm -rf /opt/tomcat/bin/*.bat && \
 # provide access to tomcat manager application with user/pw = admin/admin :
-    echo -e '<?xml version="1.0" encoding="utf-8"?>\n<tomcat-users>\n<role rolename="manager-gui"/>\n<role rolename="manager-script"/>\n<role rolename="manager-jmx"/>\n<role rolename="manager-status"/>\n<role rolename="admin"/>\n<user username="admin" password="admin" roles="manager,manager-gui,manager-script,manager-jmx,manager-status"/>\n</tomcat-users>' > /usr/local/tomcat/conf/tomcat-users.xml
+    echo -e '<?xml version="1.0" encoding="utf-8"?>\n<tomcat-users>\n<role rolename="manager-gui"/>\n<role rolename="manager-script"/>\n<role rolename="manager-jmx"/>\n<role rolename="manager-status"/>\n<role rolename="admin"/>\n<user username="admin" password="admin" roles="manager,manager-gui,manager-script,manager-jmx,manager-status"/>\n</tomcat-users>' > ${TOMCAT_HOME}/conf/tomcat-users.xml
 #-------------------------------------------------------------
 #  Install JSPWiki
 #-------------------------------------------------------------
 # download jspwiki version
-RUN  curl -O https://www.mirrorservice.org/sites/ftp.apache.org/jspwiki/${APACHE_TOMCAT_VERSION}/binaries/webapp/JSPWiki.war && mv JSPWiki.war /tmp/jspwiki.war
+RUN  curl -O https://www.mirrorservice.org/sites/ftp.apache.org/jspwiki/${JSP_WIKI_VERSION}/binaries/webapp/JSPWiki.war && mv JSPWiki.war /tmp/jspwiki.war
 
 # add jspwiki war, create JSPWiki webapps dir, unzip it there.
 # create a directory where all jspwiki stuff will be hosted
 RUN mkdir /var/jspwiki && \
 # first remove default tomcat applications, we dont need them to run jspwiki
-   cd /opt/tomcat/webapps && rm -rf examples host-manager manager docs ROOT && \
+   cd ${TOMCAT_HOME}/webapps && rm -rf examples host-manager manager docs ROOT  
 # create subdirectories where all jspwiki stuff will be hosted
-   cd /var/jspwiki && mkdir pages logs etc work && mkdir /opt/tomcat/webapps/ROOT && \
-   unzip -q -d /usr/local/tomcat/webapps/ROOT /tmp/jspwiki.war && rm /tmp/jspwiki.war
+RUN   cd /var/jspwiki && mkdir pages logs etc work && mkdir ${TOMCAT_HOME}/webapps/ROOT 
+RUN   unzip  /tmp/jspwiki.war  -d  ${TOMCAT_HOME}/webapps/ROOT  
+RUN   rm /tmp/jspwiki.war
+RUN  curl -o /tmp/jspwiki-wikipages.zip https://www.mirrorservice.org/sites/ftp.apache.org/jspwiki/${JSP_WIKI_VERSION}/wikipages/jspwiki-wikipages-${JSPWIKI_WIKIPAGES_LANGUAGE}-${JSP_WIKI_VERSION}.zip 
 
-RUN  curl -O https://www.mirrorservice.org/sites/ftp.apache.org/jspwiki/${JSP_WIKI_VERSION}/wikipages/jspwiki-wikipages-${JSPWIKI_WIKIPAGES_LANGUAGE}-${JSP_WIKI_VERSION}.zip jspwiki-wikipages && mv JSPWiki.war /tmp/jspwiki.war
-
-RUN cd /tmp/ && unzip -q jspwiki-wikipages-en-2.10.3-SNAPSHOT.zip && mv jspwiki-wikipages-en-2.10.3-SNAPSHOT/* /var/jspwiki/pages/ && rm -rf jspwiki-wikipages-en-2.10.3-SNAPSHOT*
+RUN cd /tmp/ && unzip jspwiki-wikipages.zip -d /var/jspwiki/pages/ && rm -rf jspwiki-wikipages
 # move the userdatabase.xml and groupdatabase to /var/jspwiki/etc
-RUN cd /usr/local/tomcat/webapps/ROOT/WEB-INF && mv userdatabase.xml groupdatabase.xml /var/jspwiki/etc
+RUN cd ${TOMCAT_HOME}/webapps/ROOT/WEB-INF && mv userdatabase.xml groupdatabase.xml /var/jspwiki/etc
 # arrange proper logging (jspwiki.use.external.logconfig = true needs to be set)
-ADD log4j.properties /usr/local/tomcat/lib/log4j.properties
+ADD log4j.properties ${TOMCAT_HOME}/lib/log4j.properties
 #
 # make everything owned by tomcat
-RUN chown -R tomcat: /var/jspwiki /usr/local/tomcat/*
+RUN chown -R ${user}:${group} /var/jspwiki ${TOMCAT_HOME}/*
 #
 # set default environment entries to configure jspwiki
 ENV LANG en_US.UTF-8
